@@ -19,12 +19,12 @@ module Borg
       [301, { 'Location' => "/streams/#{request.path[:id]}/#{stream_hash}" }, ""]
     end
 
-    # /streams/vote/key
+    # /streams/vote/e914gadf41
     post "/streams/:id/:key" do |request|
       if request.path[:key] == OpenSSL::HMAC.hexdigest('sha1', SECRET, request.path[:id])
         txn = request.input.read
         if valid_txn?(txn)
-          puts "would enqueue: #{txn}"
+          Celluloid::Actor[:sequencer].push(request.path[:id], MultiJson.load(txn))
           [200, {}, ""]
         else
           [400, {}, "Invalid transaction"]
