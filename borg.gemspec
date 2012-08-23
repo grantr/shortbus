@@ -14,4 +14,8 @@ Gem::Specification.new do |gem|
   gem.name          = "borg"
   gem.require_paths = ["lib"]
   gem.version       = Borg::VERSION
+
+  gem.add_runtime_dependency "celluloid"
+  gem.add_runtime_dependency "reel"
+  gem.add_runtime_dependency "octarine"
 end
