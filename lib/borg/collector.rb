@@ -22,16 +22,25 @@ module Borg
     # /streams/vote/e914gadf41
     post "/streams/:id/:key" do |request|
       if request.path[:key] == OpenSSL::HMAC.hexdigest('sha1', SECRET, request.path[:id])
+        sequence = Celluloid::Actor[:sequencer].future(:get, request.path[:id])
         txn = request.input.read
         if valid_txn?(txn)
-          Celluloid::Actor[:sequencer].push(request.path[:id], MultiJson.load(txn))
-          [200, {}, ""]
+          seq = sequence.value
+          Celluloid::Actor[:digester].push(request.path[:id], build_delta(seq, txn))
+          [201, {}, seq]
         else
           [400, {}, "Invalid transaction"]
         end
       else
         [401, {}, ""]
       end
+    end
+
+    def build_delta(seq, txn)
+      {
+        seq: seq,
+        changes: Array(MultiJson.load(txn))
+      }
     end
 
     def valid_txn?(txn)

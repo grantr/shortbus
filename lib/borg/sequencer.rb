@@ -8,9 +8,8 @@ module Borg
       @counters = Hash.new { |h, k| h[k] = 0 }
     end
 
-    def push(stream, txn)
+    def get(stream)
       @counters[stream] += 1
-      Actor[:digester].push(stream, { seq: @counters[stream], changes: Array(txn)})
     end
   end
 end
