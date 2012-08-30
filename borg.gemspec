@@ -19,4 +19,5 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "reel"
   gem.add_runtime_dependency "octarine"
   gem.add_runtime_dependency "multi_json", [">= 1.3"]
+  gem.add_runtime_dependency "leveldb-ruby"
 end
