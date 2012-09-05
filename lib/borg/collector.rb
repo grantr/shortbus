@@ -5,13 +5,10 @@ require 'multi_json'
 module Borg
   class Collector
     include Reel::App
+    include Celluloid::Notifications
 
     SECRET = "895f258089dac96c0feae216e5a40c4153c4853a"
     
-    get "/foo" do |request|
-      [200, {}, "hello foo"]
-    end
-
     # /streams/vote
     post "/streams/:id" do |request|
       #TODO authentication
@@ -26,7 +23,7 @@ module Borg
         txn = request.input.read
         if valid_txn?(txn)
           seq = sequence.value
-          Celluloid::Actor[:digester].push(request.path[:id], build_delta(seq, txn))
+          publish("stream.#{request.path[:id]}", build_delta(seq, txn))
           [201, {}, seq]
         else
           [400, {}, "Invalid transaction"]
@@ -36,22 +33,31 @@ module Borg
       end
     end
 
+    #TODO add a Transaction class instead of passing around arrays
     def build_delta(seq, txn)
       {
         seq: seq,
-        changes: Array(MultiJson.load(txn))
+        changes: [MultiJson.load(txn)] #TODO support multiple changes in a transaction
       }
     end
 
+    # [ "type", "id", { "record": "value" }]
+    # [ "type", "id", "non-hash value"]
+    # [ "type", "id", { "__delete": true }]
+    # [[ "type", "id", { "record": "value" }], ... ]
     def valid_txn?(txn)
       begin
         case txn
         when String
           valid_txn?(MultiJson.load(txn))
         when Array
-          txn.all? { |t| valid_txn?(t) }
-        when Hash
-          txn.size == 1 && txn.values.first.is_a?(Hash) && txn.values.first.has_key?('id') 
+          if txn.first.is_a?(Array)
+            txn.all? { |t| valid_txn?(t) }
+          else
+            txn.size == 3 && 
+              txn[0].is_a?(String) && 
+              txn[1].is_a?(String)
+          end
         else
           false
         end
