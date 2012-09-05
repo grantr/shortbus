@@ -25,8 +25,8 @@ module Borg
       subscribe(/stream.*/, :push)
     end
 
-    def push(stream, txn)
-      stream_id = stream.sub(/^stream\./, '')
+    def push(stream_topic, txn)
+      stream_id = stream_topic.sub(/^stream\./, '')
       @connections[stream_id].each do |conn|
         puts "sending #{MultiJson.dump(txn)} to #{stream_id} consumers"
         begin
@@ -38,8 +38,8 @@ module Borg
       end
     end
 
-    def debug(stream, txn)
-      puts "received txn from #{stream}: #{txn}"
+    def debug(stream_topic, txn)
+      puts "received txn from #{stream_topic}: #{txn}"
     end
 
   end
