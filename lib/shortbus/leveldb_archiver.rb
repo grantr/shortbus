@@ -2,7 +2,7 @@ require 'leveldb'
 require 'fileutils'
 
 module Shortbus
-  class Archiver
+  class LeveldbArchiver
     include Celluloid
     include Celluloid::Notifications
 
