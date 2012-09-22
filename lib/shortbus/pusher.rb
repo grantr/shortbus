@@ -9,11 +9,12 @@ module Shortbus
     def initialize(host, port)
       @connections = Hash.new { |h, k| h[k] = [] }
       @server = Reel::Server.supervise host, port do |connection|
-        if connection.request
-          request = connection.request
+        while request = connection.request
+          puts "request.url #{request.url}"
           if request.url =~ /\/streams\/([A-Za-z0-9_\-]+)/
-            stream_id = $1
-            @connections[stream_id] << connection
+            stream = $1
+            puts "received new connection on #{stream}"
+            @connections[stream] << connection
             connection.respond :ok, :transfer_encoding => :chunked
           else
             connection.respond :not_found
