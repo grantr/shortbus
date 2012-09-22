@@ -23,7 +23,7 @@ module Shortbus
         txn = request.input.read
         if valid_txn?(txn)
           seq = sequence.value
-          publish("stream.#{request.path[:id]}", build_delta(seq, txn))
+          publish("stream.incoming.#{request.path[:id]}", build_delta(seq, txn))
           [201, {}, seq]
         else
           [400, {}, "Invalid transaction"]

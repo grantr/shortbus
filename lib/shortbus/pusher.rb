@@ -21,25 +21,21 @@ module Shortbus
         end
       end
 
-      subscribe(/stream.*/, :debug)
-      subscribe(/stream.*/, :push)
+      subscribe(/^stream\.outgoing\./, :push)
     end
 
     def push(stream_topic, txn)
-      stream_id = stream_topic.sub(/^stream\./, '')
-      @connections[stream_id].each do |conn|
-        puts "sending #{MultiJson.dump(txn)} to #{stream_id} consumers"
+      stream = stream_topic.sub(/^stream\.outgoing\./, '')
+      puts "received txn from #{stream}: #{txn}"
+      @connections[stream].each do |connection|
+        puts "sending #{MultiJson.dump(txn)} to #{stream} consumer #{connection}"
         begin
-          conn << "#{MultiJson.dump(txn)}\n"
+          connection << "#{MultiJson.dump(txn)}\n"
         rescue IOError
           puts "closed stream"
-          @connections[stream_id].delete(conn)
+          @connections[stream].delete(connection)
         end
       end
-    end
-
-    def debug(stream_topic, txn)
-      puts "received txn from #{stream_topic}: #{txn}"
     end
 
   end
