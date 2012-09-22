@@ -45,6 +45,11 @@ module Shortbus
     # [ "type", "id", "non-hash value"]
     # [ "type", "id", { "__delete": true }]
     # [[ "type", "id", { "record": "value" }], ... ]
+    #
+    # TODO should also support transactions without types or ids:
+    # [ "type", null, some_value ]
+    # [ null, null, some_value ]
+    # these streams would not be snapshot-able.
     def valid_txn?(txn)
       begin
         case txn
