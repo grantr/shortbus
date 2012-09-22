@@ -1,6 +1,6 @@
 # Shortbus
 
-TODO: Write a gem description
+Shortbus is a replication and snapshot service similar to Linkedin's Databus.
 
 ## Installation
 
@@ -18,7 +18,7 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Nothing to use yet - still in development.
 
 ## Contributing
 

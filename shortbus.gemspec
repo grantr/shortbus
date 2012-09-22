@@ -4,8 +4,8 @@ require File.expand_path('../lib/shortbus/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ["Grant Rodgers"]
   gem.email         = ["grantr@gmail.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
+  gem.description   = %q{Shortbus is a replication and snapshot service similar to Linkedin's Databus.}
+  gem.summary       = %q{Replication and snapshot service}
   gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($\)
