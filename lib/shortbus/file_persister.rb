@@ -1,8 +1,7 @@
-require 'leveldb'
 require 'fileutils'
 
 module Shortbus
-  class LeveldbArchiver
+  class FilePersister
     include Celluloid
     include Celluloid::Notifications
 
@@ -12,18 +11,19 @@ module Shortbus
       ensure_store_path
       @databases = {}
       @last_seq = {}
-      subscribe(/stream.*/, :store)
+      subscribe(/stream\.incoming\./, :store)
     end
 
     def store(stream_topic, txn)
-      stream = stream_topic.sub(/^stream\./, '')
+      stream = stream_topic.sub(/^stream\.incoming\./, '')
       db = database_for(stream)
       @last_seq[stream] = txn[:seq].to_s
-      db.put(txn[:seq].to_s, MultiJson.dump(txn[:changes]))
+      db.puts MultiJson.dump(txn)
+      publish("stream.outgoing.#{stream}", txn)
     end
 
     def last_seq_for(stream)
-      @last_seq[stream] ||= database_for(stream).keys.last
+      @last_seq[stream] #TODO 
     end
 
     def deltas_for(stream, options={})
@@ -31,7 +31,9 @@ module Shortbus
     end
 
     def database_for(stream)
-      @databases[stream] ||= LevelDB::DB.new(File.join(STORE_PATH, stream))
+      #TODO this should start at the beginning, json load every record, and
+      #store the last seq
+      @databases[stream] ||= File.new(File.join(STORE_PATH, stream), "a")
     end
 
     def finalize
