@@ -1,4 +1,4 @@
-module Borg
+module Shortbus
   class Sequencer
     include Celluloid
 

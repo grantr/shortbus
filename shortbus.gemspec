@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-require File.expand_path('../lib/borg/version', __FILE__)
+require File.expand_path('../lib/shortbus/version', __FILE__)
 
 Gem::Specification.new do |gem|
   gem.authors       = ["Grant Rodgers"]
@@ -11,9 +11,9 @@ Gem::Specification.new do |gem|
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
-  gem.name          = "borg"
+  gem.name          = "shortbus"
   gem.require_paths = ["lib"]
-  gem.version       = Borg::VERSION
+  gem.version       = Shortbus::VERSION
 
   gem.add_runtime_dependency "celluloid"
   gem.add_runtime_dependency "reel"

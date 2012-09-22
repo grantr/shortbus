@@ -1,12 +1,12 @@
 require 'leveldb'
 require 'fileutils'
 
-module Borg
+module Shortbus
   class Archiver
     include Celluloid
     include Celluloid::Notifications
 
-    STORE_PATH = "/tmp/borg/streams"
+    STORE_PATH = "/tmp/shortbus/streams"
 
     def initialize
       ensure_store_path

@@ -1,4 +1,4 @@
-module Borg
+module Shortbus
   class Digester
     include Celluloid
     include Celluloid::Notifications

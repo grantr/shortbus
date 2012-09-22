@@ -1,12 +1,12 @@
+require 'leveldb'
 require 'fileutils'
 
-module Borg
-  class Snapshotter
+module Shortbus
+  class LeveldbSnapshotter
     include Celluloid
 
-    STORE_PATH = "/tmp/borg/snapshots"
+    STORE_PATH = "/tmp/shortbus/snapshots"
 
-    #TODO this should be an actor that starts and creates a snapshot immediately, then dies
     def initialize
       ensure_store_path
       #TODO set timer
@@ -16,7 +16,7 @@ module Borg
       last_seq ||= Actor[:archiver].last_seq_for(stream)
       return unless last_seq
 
-      snapshot_db = Hash.new { |h,k| h[k] = Hash.new }
+      snapshot_db = database_for(stream, last_seq)
 
       #TODO get most recent snapshot, add it to db
       #TODO if a db exists from the previous snapshot, use that instead of creating
@@ -27,23 +27,31 @@ module Borg
       
       # apply deltas since previous snapshot seq
       Actor[:archiver].deltas_for(stream, from: first_seq, to: last_seq).each do |seq, json|
-        changes = MultiJson.load(json)
+        txn = MultiJson.load(json)
+        changes = txn.first['changes']
         changes.each do |change|
-          type, id, record = change
-          snapshot_db[type][id] = record
+          type, record = change
+          snapshot_db.put "#{type},#{record['id']}", MultiJson.dump(record)
         end
       end
       
       # generate new snapshot
       snapshot_file = File.new(File.join(STORE_PATH, "snapshot-#{stream}-#{last_seq}"), "w")
       #TODO write header
-      snapshot_db.each do |type, records|
-        records.each do |id, record|
-          snapshot_file.puts MultiJson.dump([type, id, record])
-        end
+      snapshot_db.each do |k, v|
+        type, id = k.split(",")
+        snapshot_file.puts MultiJson.dump({ type => MultiJson.load(v) })
+        #TODO digests
       end
 
       snapshot_file.close
+      snapshot_db.close
+    end
+
+    private
+
+    def database_for(stream, seq)
+      LevelDB::DB.new(File.join(STORE_PATH, "#{stream}-#{seq}"))
     end
 
     def ensure_store_path

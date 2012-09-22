@@ -2,7 +2,7 @@ require 'reel/app'
 require 'openssl'
 require 'multi_json'
 
-module Borg
+module Shortbus
   class Collector
     include Reel::App
     include Celluloid::Notifications

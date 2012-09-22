@@ -1,11 +1,11 @@
 require 'celluloid'
-require 'borg/sequencer'
-require 'borg/digester'
-require 'borg/pusher'
-require 'borg/archiver'
-require 'borg/snapshotter'
+require 'shortbus/sequencer'
+require 'shortbus/digester'
+require 'shortbus/pusher'
+require 'shortbus/archiver'
+require 'shortbus/snapshotter'
 
-module Borg
+module Shortbus
   class Group < Celluloid::SupervisionGroup
     supervise Sequencer, as: :sequencer
     supervise Digester, as: :digester

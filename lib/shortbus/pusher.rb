@@ -1,7 +1,7 @@
 require 'reel'
 require 'multi_json'
 
-module Borg
+module Shortbus
   class Pusher
     include Celluloid
     include Celluloid::Notifications
